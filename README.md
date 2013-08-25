@@ -1,36 +1,46 @@
-# Title
+# Helium CLI
 
--- travis ci
-[![Build Status](https://travis-ci.org/villadora/<project>?branch=master)](https://travis-ci.org/villadora/<project>)
+A cli tool to discovery unused CSS accros multiple pages based on [phantomjs](http://phantonjs.org), which is migrating from project [helium-css](https://github.com/geuis/helium-css)
+
+
+## Installation
+
+If you want a standalone cli tool, just run:
+
+    npm install -g helium-cli
+
+If you already has phantomjs installed and also curl in your machine, you can download [helium-script.js](./helium-script.js) and [helper.js](./helper.js).
+
+## Usage
+
+While you install via npm, then you can run:
+
+    helium-cli www.example.com/1 www.example.com/2  
+
+If you already has phantomjs installed and also curl in your machine, you can download [helium-script.js](./helium-script.js) and [helper.js](./helper.js), put them in the same folder and run:
+
+    phantomjs helium-script.js www.example.com/1 www.example.com/2
+
+
+The output will be:
+
+<pre>
+[stylesheet address]
+======================
+.selector1
+selector2
+body ul .selector3
+... unused csss selectors
+</pre>
+
+## TODO
+
+1. Error handling for webpage loading/parsing errors.
+2. Detect css selectors used in javascript.
 
 ## License
 
 (The BSD License)
 
-    Copyright (c) 2013, Villa.Gao <jky239@gmail.com>;
-    All rights reserved.
-
-    Redistribution and use in source and binary forms, with or without
-    modification, are permitted provided that the following conditions are met:
-    1. Redistributions of source code must retain the above copyright
-       notice, this list of conditions and the following disclaimer.
-    2. Redistributions in binary form must reproduce the above copyright
-       notice, this list of conditions and the following disclaimer in the
-       documentation and/or other materials provided with the distribution.
-    3. All advertising materials mentioning features or use of this software
-       must display the following acknowledgement:
-       This product includes software developed by the <organization>.
-    4. Neither the name of the <organization> nor the
-       names of its contributors may be used to endorse or promote products
-       derived from this software without specific prior written permission.
-                     
-    THIS SOFTWARE IS PROVIDED BY <COPYRIGHT HOLDER> ''AS IS'' AND ANY
-    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-    DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
-    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Copyright (c) 2013, Villa.Gao <jky239@gmail.com>;
+All rights reserved.
