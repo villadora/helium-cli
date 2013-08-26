@@ -11,7 +11,7 @@
     },
     "repository": {
         "type": "git",
-        "repository": "git@github.com:villadora/helium-cli.git"
+        "url": "git@github.com:villadora/helium-cli.git"
     },
     "keywords": [
         "css",
