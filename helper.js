@@ -15,7 +15,7 @@ var helium = {
             //append full URI if absent
             if (tmplink.indexOf('http') !== 0 && tmplink.substr(0, 2) !== '//') {
                 // make sure that relative URLs work too
-                if (tmplink.indexOf('/') != 0) {
+                if (tmplink.indexOf('/') !== 0) {
                     var lastDir = window.location.pathname.lastIndexOf('/');
                     if (lastDir > 0) {
                         directory = window.location.pathname.substring(0, lastDir + 1);

@@ -1,7 +1,6 @@
 # Helium CLI
 
-A cli tool to discovery unused CSS accros multiple pages based on [phantomjs](http://phantonjs.org), which is migrating from project [helium-css](https://github.com/geuis/helium-css)
-
+A command-line tool to discovery unused CSS accros multiple pages based on [phantomjs](http://phantonjs.org), which is inspired by project [helium-css](https://github.com/geuis/helium-css).
 
 ## Installation
 
@@ -17,21 +16,31 @@ While you install via npm, then you can run:
 
     helium-cli www.example.com/1 www.example.com/2  
 
-If you already has phantomjs installed and also curl in your machine, you can download [helium-script.js](./helium-script.js) and [helper.js](./helper.js), put them in the same folder and run:
+If you already has [phantomjs](http://phantomjs.org) installed and also [curl](http://curl.haxx.se/) in your machine, you can download [helium-script.js](./helium-script.js) and [helper.js](./helper.js), put them in the same folder and run:
 
     phantomjs helium-script.js www.example.com/1 www.example.com/2
 
 
-The output will be:
+The output will be a json like following
 
-<pre>
-[stylesheet address]
-======================
-.selector1
-selector2
-body ul .selector3
-... unused csss selectors
-</pre>
+```javascript
+[
+   {
+      name: 'stylesheet name',
+      unused: [
+         'selectors that no used',
+         '...'
+      ],
+      invalid_selector: [
+         'selectors that are invalid'
+      ],
+      pseudo_class: [
+         'pseudo classes'
+      ],
+      unused_perc: 54.3 // percentage of unused selectors
+   }
+]
+```
 
 ## TODO
 

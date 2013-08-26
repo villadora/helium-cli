@@ -98,7 +98,7 @@ var helium = {
 
                     cb(null, {
                         url: ss.url,
-                        stylesheet: ss.stylesheet,
+                        stylesheet: ss.url + ' <style>',
                         selectors: results
                     });
                     return;
@@ -331,12 +331,12 @@ helium.start(pageList, function(err, rs) {
         phantom.exit(1);
     }
 
+    var output = [];
+
     rs.forEach(function(ss) {
-        console.log("<" + ss.stylesheet + ">");
-        var d = "=====";
-        for (var i = 0; i < ss.stylesheet.length; ++i)
-            d += "=";
-        console.log(d);
+        var data = {};
+        data.name  = ss.stylesheet;
+        data.unused = [];
 
         var total = 0,
             unused = 0;
@@ -344,12 +344,19 @@ helium.start(pageList, function(err, rs) {
             total++;
             if (selector.visible === false) {
                 unused++;
-                console.log('\t' + selector.selector);
+                data.unused.push(selector.selector);
+            }else if(typeof selector.visible === '') {
+                if(!data.hasOwnProperty(selector.visible))
+                    data[selector.visible] = [];
+                data[selector.visible].push(selector.selector);
             }
         });
 
-        console.log([ss.stylesheet, ':\n\t', (unused / total * 100).toFixed(2), '% is not used'].join(''));
+        data.unused_perc = (unused /total * 100).toFixed(2);
+        output.push(data);
     });
+
+    console.log(JSON.stringify(output, null, 4));
 
     phantom.exit();
 });
