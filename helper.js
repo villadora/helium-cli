@@ -45,7 +45,7 @@ var helium = {
         for (var i = 0; i < styles.length; ++i) {
             if (styles[i].getAttribute('type') != 'text/css') continue;
             stylesheets.push({
-                stylesheet: 'inner_stylesheet_' + i,
+                stylesheet: 'ss_inner_' + i,
                 body: styles[i].innerText
             });
         }

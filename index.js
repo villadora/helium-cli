@@ -17,7 +17,6 @@ var childArgs = [
 ];
 
 Array.prototype.push.apply(childArgs, process.argv.slice(2));
-
 childProcess.execFile(binPath, childArgs, function(err, stdout, stderr) {
     // handle results
     console.log(stderr);
