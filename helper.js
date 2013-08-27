@@ -56,11 +56,9 @@ var helium = {
     //check if selectors found on pages
     checkcss: function(stylesheets, url) {
         for (var i = 0; i < stylesheets.length; i++) {
-            if (stylesheets[i].url === url) {
+            if (stylesheets[i].url === url && !stylesheets[i].err) {
                 var stylesheet = stylesheets[i];
                 //loop through selectors and test if active on this page. 
-                //If it is a single selector( length===1 ), remove them from the array
-                //If length > 1, the "sub selector" gets an attribute of 'true' to indicate it was found
                 for (var j = 0; j < stylesheet.selectors.length; j++) {
                     var selector = stylesheet.selectors[j];
                     var response = helium.check(selector.selector);

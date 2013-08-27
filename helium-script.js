@@ -26,7 +26,7 @@ var helium = {
             var page = require('webpage').create(),
                 resources = [];
             page.onConsoleMessage = function(msg, line, source) {
-                system.stderr.writeLine('console:', msg, 'source:', source, 'line:', line);
+                system.stderr.writeLine('console:'+msg+ 'source:'+source+'line:'+line);
             };
             page.onResourceRequested = function(req) {
                 resources[req.id] = req.stage;
@@ -42,8 +42,7 @@ var helium = {
             page.customHeaders = {
                 'Referer': 'localhost'
             };
-
-            system.stderr.writeLine('open ', url, ' to get stylesheets...');
+            system.stderr.writeLine('open '+url+' to get stylesheets...');
             page.open(url, function() {
                 if (page.injectJs('./helper.js')) {
                     waitFor(function() {
@@ -114,10 +113,10 @@ var helium = {
                 var curl,
                     body = '';
                 if (curlScript) {
-                    system.stderr.writeLine('try to load ', ss.stylesheet, ' via ', curlScript);
+                    system.stderr.writeLine('try to load ' + ss.stylesheet +' via ' + curlScript);
                     curl = child_process.spawn("node", [curlScript, ss.stylesheet]);
                 } else {
-                    system.stderr.writeLine('try to load ', ss.stylesheet, ' via curl');
+                    system.stderr.writeLine('try to load ' + ss.stylesheet + ' via curl');
                     curl = child_process.spawn("curl", [ss.stylesheet]);
                 }
 
@@ -131,7 +130,7 @@ var helium = {
                         if (code !== 0) return cb('curl exited with code:' + code);
                         // in phantomjs, the core node libs are not imported! like http, Buffer
                         // data.size = Buffer.byteLength(body, 'utf8');
-                        system.stderr.writeLine('parse css: ', ss.stylesheet);
+                        system.stderr.writeLine('parse css: ' + ss.stylesheet);
                         var cssdom = cssParser(body),
                             results = [];
                         //remove css comments
@@ -148,7 +147,15 @@ var helium = {
                         data.selectors = results;
                         cb(null, data);
                     } catch (e) {
-                        cb(e);
+                        body = body.replace(/\/\*[\s\S]*?\*\//gim, "").replace(/\n/g, '');
+                        // do fallback, css parser ignore errors
+                        var selectors = [];
+                        cb(null, {
+                            url: ss.url,
+                            stylesheet: ss.stylesheet,
+                            err: e,
+                            selectors: selectors
+                        });
                     }
                 });
             },
@@ -159,6 +166,7 @@ var helium = {
     },
 
     checkcss: function(err, pageList, stylesheets, callback) {
+        if(err) return callback(err);
         async.mapSeries(pageList, function(url, cb) {
                 var page = require('webpage').create();
                 resources = [];
@@ -172,6 +180,7 @@ var helium = {
                 page.onResourceReceived = function(res) {
                     resources[res.id] = res.stage;
                 };
+
                 // User-Agent is supported through page.settings
                 page.settings.userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.65 Safari/537.31';
 
@@ -183,7 +192,7 @@ var helium = {
 
                 page.open(url, function() {
                     if (page.injectJs('./helper.js')) {
-                        system.stderr.writeLine('analyse selectors in ', url);
+                        system.stderr.writeLine('analyse selectors in '+url);
                         waitFor(function() {
                                 for (var i = 1; i < resources.length; ++i) {
                                     if (resources[i] != 'end') {
@@ -207,6 +216,8 @@ var helium = {
                 });
             },
             function(err, results) {
+                if(err) return callback(err);
+
                 var localss = {};
 
                 results.forEach(function(stylesheets) {
@@ -217,6 +228,8 @@ var helium = {
                                 selectors: {}
                             };
 
+                            if(s.err) d.err = s.err;
+
                             s.selectors.forEach(function(selector) {
                                 if (!d.selectors.hasOwnProperty(selector.selector))
                                     d.selectors[selector.selector] = selector;
@@ -225,7 +238,6 @@ var helium = {
                                         d.selectors[selector.selector].visible = selector.visible;
                                 }
                             });
-
                         } else {
                             var data = localss[s.stylesheet];
                             s.selectors.forEach(function(selector) {
@@ -244,15 +256,16 @@ var helium = {
                 for (var s in localss) {
                     if (localss.hasOwnProperty(s)) {
                         var stylesheet = {
-                            stylesheet: localss[s].stylesheet
-                        }, lss = localss[s].selectors,
-                            selectors = [];
+                            stylesheet: localss[s].stylesheet,
+                            selectors: []
+                        }, lss = localss[s].selectors;
+
+                        if(localss[s].err)
+                            stylesheet.err = localss[s].err;
 
                         for (var selector in lss) {
-                            selectors.push(lss[selector]);
+                            stylesheet.selectors.push(lss[selector]);
                         }
-
-                        stylesheet.selectors = selectors;
                         rs.push(stylesheet);
                     }
                 }
@@ -331,12 +344,14 @@ helium.start(pageList, function(err, rs) {
         phantom.exit(1);
     }
 
-    var output = [];
-
-    rs.forEach(function(ss) {
+    var output = rs.map(function(ss) {
         var data = {};
         data.name  = ss.stylesheet;
         data.unused = [];
+        if(ss.err) {
+            data.err = ss.err.message;
+        }
+
 
         var total = 0,
             unused = 0;
@@ -353,7 +368,7 @@ helium.start(pageList, function(err, rs) {
         });
 
         data.unused_perc = (unused /total * 100).toFixed(2);
-        output.push(data);
+        return data;
     });
 
     system.stdout.write(JSON.stringify(output, null, 4));
