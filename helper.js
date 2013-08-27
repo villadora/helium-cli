@@ -43,9 +43,8 @@ var helium = {
 
         var styles = document.getElementsByTagName('style');
         for (var i = 0; i < styles.length; ++i) {
-            if (styles[i].getAttribute('type') != 'text/css') continue;
             stylesheets.push({
-                stylesheet: 'ss_inner_' + i,
+                stylesheet: '<style> ' + i,
                 body: styles[i].innerText
             });
         }

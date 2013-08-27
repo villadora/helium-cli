@@ -8,16 +8,16 @@ var childProcess = require('child_process'),
     args = Array.prototype.concat.call(process.argv);
 
 
-for(var i = 0; i < args.length; ++i) {
-    if(args[i] === "-h" || args[i] === "--help") {
+for (var i = 0; i < args.length; ++i) {
+    if (args[i] === "-h" || args[i] === "--help") {
         console.error('Usage: helium-cli [URLs]');
         console.error('\t-h, --help show help');
         console.error('\t-v, --version show version');
         process.exit(1);
-    }else if(args[i] === "-v" || args[i] === "--version") {
+    } else if (args[i] === "-v" || args[i] === "--version") {
         console.log(require('./package.json').version);
         process.exit(1);
-    }else if(args[i] === "-d" || args[i] === "--version") {
+    } else if (args[i] === "-d" || args[i] === "--version") {
         debug = true;
         args.splice(i, 1);
         i--;
@@ -38,8 +38,20 @@ var childArgs = [
 
 Array.prototype.push.apply(childArgs, args.slice(2));
 
-childProcess.execFile(binPath, childArgs, function(err, stdout, stderr) {
-    // handle results
-    if(debug) console.log(stderr);
-    console.log(stdout);
+if (debug) console.log(binPath, '\n', childArgs);
+
+var ph = childProcess.spawn(binPath, childArgs);
+ph.stdout.setEncoding('utf8');
+ph.stderr.setEncoding('utf8');
+
+ph.stdout.on('data', function(data) {
+    console.log(data);
+});
+
+ph.stderr.on('data', function(data) {
+    if (debug) console.log(data);
+});
+
+ph.on('close', function(code) {
+    process.exit(code);
 });
