@@ -1,6 +1,6 @@
 {
     "name": "helium-cli",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "A tool to detect unused CSS across multiple web pages",
     "main": "index.js",
     "scripts": {

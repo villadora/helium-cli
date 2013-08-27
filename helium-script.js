@@ -26,7 +26,7 @@ var helium = {
             var page = require('webpage').create(),
                 resources = [];
             page.onConsoleMessage = function(msg, line, source) {
-                console.log('console:', msg, 'source:', source, 'line:', line);
+                system.stderr.writeLine('console:', msg, 'source:', source, 'line:', line);
             };
             page.onResourceRequested = function(req) {
                 resources[req.id] = req.stage;
@@ -43,7 +43,7 @@ var helium = {
                 'Referer': 'localhost'
             };
 
-            console.log('open ', url, ' to get stylesheets...');
+            system.stderr.writeLine('open ', url, ' to get stylesheets...');
             page.open(url, function() {
                 if (page.injectJs('./helper.js')) {
                     waitFor(function() {
@@ -114,10 +114,10 @@ var helium = {
                 var curl,
                     body = '';
                 if (curlScript) {
-                    console.log('try to load ', ss.stylesheet, ' via ', curlScript);
+                    system.stderr.writeLine('try to load ', ss.stylesheet, ' via ', curlScript);
                     curl = child_process.spawn("node", [curlScript, ss.stylesheet]);
                 } else {
-                    console.log('try to load ', ss.stylesheet, ' via curl');
+                    system.stderr.writeLine('try to load ', ss.stylesheet, ' via curl');
                     curl = child_process.spawn("curl", [ss.stylesheet]);
                 }
 
@@ -131,7 +131,7 @@ var helium = {
                         if (code !== 0) return cb('curl exited with code:' + code);
                         // in phantomjs, the core node libs are not imported! like http, Buffer
                         // data.size = Buffer.byteLength(body, 'utf8');
-                        console.log('parse css: ', ss.stylesheet);
+                        system.stderr.writeLine('parse css: ', ss.stylesheet);
                         var cssdom = cssParser(body),
                             results = [];
                         //remove css comments
@@ -163,7 +163,7 @@ var helium = {
                 var page = require('webpage').create();
                 resources = [];
                 page.onConsoleMessage = function(message) {
-                    console.log(message);
+                    system.stderr.writeLine(message);
                 };
 
                 page.onResourceRequested = function(req) {
@@ -183,7 +183,7 @@ var helium = {
 
                 page.open(url, function() {
                     if (page.injectJs('./helper.js')) {
-                        console.log('analyse selectors in ', url);
+                        system.stderr.writeLine('analyse selectors in ', url);
                         waitFor(function() {
                                 for (var i = 1; i < resources.length; ++i) {
                                     if (resources[i] != 'end') {
@@ -288,7 +288,7 @@ function waitFor(testFx, onReady, timeOutMillis) {
             } else {
                 if (!condition) {
                     // If condition still not fulfilled (timeout but condition is 'false')
-                    console.error("'waitFor()' timeout");
+                    system.stderr.writeLine("'waitFor()' timeout");
                     phantom.exit(1);
                 } else {
                     // Condition fulfilled (timeout and/or condition is 'true')
@@ -320,14 +320,14 @@ for (var i = curlScript ? 2 : 1; i < system.args.length; ++i) {
 }
 
 if (system.args.length < 2) {
-    console.error('Please provide url');
+    system.stdout.writeLine('Please provide url');
     phantom.exit(1);
 }
 
 
 helium.start(pageList, function(err, rs) {
     if (err) {
-        console.error(err);
+        system.stdout.writeLine(err);
         phantom.exit(1);
     }
 
@@ -356,7 +356,7 @@ helium.start(pageList, function(err, rs) {
         output.push(data);
     });
 
-    console.log(JSON.stringify(output, null, 4));
+    system.stdout.write(JSON.stringify(output, null, 4));
 
     phantom.exit();
 });

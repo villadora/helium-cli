@@ -4,11 +4,12 @@ A command-line tool to discovery unused CSS accros multiple pages based on [phan
 
 ## Installation
 
-If you want a standalone cli tool, just run:
+If you want a standalone cli tool, just run(highly suggest):
 
     npm install -g helium-cli
 
-If you already has phantomjs installed and also curl in your machine, you can download [helium-script.js](./helium-script.js) and [helper.js](./helper.js).
+If you already has phantomjs installed and also curl in your machine, and you really don't want to download phantomjs again due to some reason.
+Then you can clone this repository and remove the "phantomjs" "request" dependencies in the [package.json](./package.json).
 
 ## Usage
 
@@ -16,7 +17,8 @@ While you install via npm, then you can run:
 
     helium-cli www.example.com/1 www.example.com/2  
 
-If you already has [phantomjs](http://phantomjs.org) installed and also [curl](http://curl.haxx.se/) in your machine, you can download [helium-script.js](./helium-script.js) and [helper.js](./helper.js), put them in the same folder and run:
+If you already has [phantomjs](http://phantomjs.org) installed and also [curl](http://curl.haxx.se/) in your machine and clone the repository into your local disk.
+You can just run: 
 
     phantomjs helium-script.js www.example.com/1 www.example.com/2
 
