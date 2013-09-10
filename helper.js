@@ -91,6 +91,9 @@ var helium = {
         //detect if the selector includes a pseudo-class, i.e. :active, :focus
         var parse = selector.match(/\:+[\w-]+/gi);
         if (parse !== null && parse.hasOwnProperty('length') && parse.length > 0) {
+            var trueSelector = selector.replace(/\:[\w-]+/gi,'');
+            var reccheck = helium.check(trueSelector);
+            if(reccheck === false) return false;
             return 'pseudo_class';
         } else {
             return false;

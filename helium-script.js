@@ -44,30 +44,30 @@ var helium = {
             page.open(url, function() {
                 if (page.injectJs('./helper.js')) {
                     waitFor(function() {
-                            for (var i = 1; i < resources.length; ++i) {
-                                if (resources[i] != 'end') {
-                                    return false;
-                                }
+                        for (var i = 1; i < resources.length; ++i) {
+                            if (resources[i] != 'end') {
+                                return false;
                             }
-                            return true;
-                        },
-                        function() {
-                            var stylesheets = page.evaluate(function() {
-                                return helium.findstylesheets();
-                            });
+                        }
+                        return true;
+                    },
+                            function() {
+                                var stylesheets = page.evaluate(function() {
+                                    return helium.findstylesheets();
+                                });
 
-                            cb(null, memo.concat(stylesheets.map(function(ss) {
-                                if (typeof ss == "string")
-                                    return {
-                                        url: url,
-                                        stylesheet: ss
-                                    };
-                                else {
-                                    ss.url = url;
-                                    return ss;
-                                }
-                            })));
-                        }, timeout);
+                                cb(null, memo.concat(stylesheets.map(function(ss) {
+                                    if (typeof ss == "string")
+                                        return {
+                                            url: url,
+                                            stylesheet: ss
+                                        };
+                                    else {
+                                        ss.url = url;
+                                        return ss;
+                                    }
+                                })));
+                            }, timeout);
                 } else
                     cb("injectJs() failed.");
             });
@@ -81,85 +81,85 @@ var helium = {
         if (err) return callback(err, stylesheetUrls);
 
         async.mapSeries(stylesheetUrls, function(ss, cb) {
-                if (ss.body) {
-                    var cssdom = cssParser(ss.body),
-                        results = [];
+            if (ss.body) {
+                var cssdom = cssParser(ss.body),
+                results = [];
 
-                    cssdom.stylesheet.rules.forEach(function(rule) {
-                        if (rule.selectors)
-                            results.push({
-                                selector: rule.selectors.join(','),
-                                visible: false
-                            });
-                    });
+                cssdom.stylesheet.rules.forEach(function(rule) {
+                    if (rule.selectors)
+                        results.push({
+                            selector: rule.selectors.join(','),
+                            visible: false
+                        });
+                });
 
-                    cb(null, {
-                        url: ss.url,
-                        stylesheet: ss.url + ss.stylesheet,
-                        selectors: results
-                    });
+                cb(null, {
+                    url: ss.url,
+                    stylesheet: ss.url + ss.stylesheet,
+                    selectors: results
+                });
+            } else {
+
+                var data = {
+                    url: ss.url,
+                    stylesheet: ss.stylesheet,
+                    selectors: []
+                };
+
+
+                var curl,
+                body = '';
+                if (curlScript) {
+                    system.stderr.writeLine('try to load ' + ss.stylesheet + ' via ' + curlScript);
+                    curl = child_process.spawn("node", [curlScript, ss.stylesheet]);
                 } else {
-
-                    var data = {
-                        url: ss.url,
-                        stylesheet: ss.stylesheet,
-                        selectors: []
-                    };
-
-
-                    var curl,
-                        body = '';
-                    if (curlScript) {
-                        system.stderr.writeLine('try to load ' + ss.stylesheet + ' via ' + curlScript);
-                        curl = child_process.spawn("node", [curlScript, ss.stylesheet]);
-                    } else {
-                        system.stderr.writeLine('try to load ' + ss.stylesheet + ' via curl');
-                        curl = child_process.spawn("curl", [ss.stylesheet]);
-                    }
-
-
-                    curl.stdout.on('data', function(chunk) {
-                        body += chunk;
-                    });
-
-                    curl.on('exit', function(code) {
-                        try {
-                            if (code !== 0) return cb('curl exited with code:' + code);
-                            // in phantomjs, the core node libs are not imported! like http, Buffer
-                            // data.size = Buffer.byteLength(body, 'utf8');
-                            system.stderr.writeLine('parse css: ' + ss.stylesheet);
-                            var cssdom = cssParser(body),
-                                results = [];
-                            //remove css comments
-
-                            cssdom.stylesheet.rules.forEach(function(rule) {
-                                if (rule.selectors)
-                                    results.push({
-                                        selector: rule.selectors.join(','),
-                                        visible: false
-                                    });
-                            });
-
-                            //store stylesheet results
-                            data.selectors = results;
-                            cb(null, data);
-                        } catch (e) {
-                            body = body.replace(/\/\*[\s\S]*?\*\//gim, "").replace(/\n/g, '');
-                            // do fallback, css parser ignore errors
-                            var selectors = [];
-                            cb(null, {
-                                url: ss.url,
-                                stylesheet: ss.stylesheet,
-                                err: e,
-                                selectors: selectors
-                            });
-                        }
-                    });
+                    system.stderr.writeLine('try to load ' + ss.stylesheet + ' via curl');
+                    curl = child_process.spawn("curl", [ss.stylesheet]);
                 }
-            },
-            function(err, results) {
-                callback(err, results);
-            });
+
+
+                curl.stdout.on('data', function(chunk) {
+                    body += chunk;
+                });
+
+                curl.on('exit', function(code) {
+                    try {
+                        if (code !== 0) return cb('curl exited with code:' + code);
+                        // in phantomjs, the core node libs are not imported! like http, Buffer
+                        // data.size = Buffer.byteLength(body, 'utf8');
+                        system.stderr.writeLine('parse css: ' + ss.stylesheet);
+                        var cssdom = cssParser(body),
+                        results = [];
+                        //remove css comments
+
+                        cssdom.stylesheet.rules.forEach(function(rule) {
+                            if (rule.selectors)
+                                results.push({
+                                    selector: rule.selectors.join(','),
+                                    visible: false
+                                });
+                        });
+
+                        //store stylesheet results
+                        data.selectors = results;
+                        cb(null, data);
+                    } catch (e) {
+                        body = body.replace(/\/\*[\s\S]*?\*\//gim, "").replace(/\n/g, '');
+                        // do fallback, css parser ignore errors
+                        var selectors = [];
+                        cb(null, {
+                            url: ss.url,
+                            stylesheet: ss.stylesheet,
+                            err: e,
+                            selectors: selectors
+                        });
+                    }
+                });
+            }
+        },
+                        function(err, results) {
+                            callback(err, results);
+                        });
     },
 
     checkcss: function(err, pageList, stylesheets, callback) {
@@ -193,24 +193,24 @@ var helium = {
                 if (page.injectJs('./helper.js')) {
                     system.stderr.writeLine('analyse selectors in ' + url);
                     waitFor(function() {
-                            for (var i = 1; i < resources.length; ++i) {
-                                if (resources[i] != 'end') {
-                                    return false;
-                                }
+                        for (var i = 1; i < resources.length; ++i) {
+                            if (resources[i] != 'end') {
+                                return false;
                             }
-                            // wait for 2500 for resource render
-                            return !(waitNum--);
-                        },
-                        function() {
-                            var localss = page.evaluate(function(ss, url) {
-                                return helium.checkcss(ss, url);
-                            }, stylesheets.filter(function(item) {
-                                return item.url === url;
-                            }), url);
+                        }
+                        // wait for 2500 for resource render
+                        return !(waitNum--);
+                    },
+                            function() {
+                                var localss = page.evaluate(function(ss, url) {
+                                    return helium.checkcss(ss, url);
+                                }, stylesheets.filter(function(item) {
+                                    return item.url === url;
+                                }), url);
 
-                            // update
-                            cb(null, localss);
-                        }, timeout);
+                                // update
+                                cb(null, localss);
+                            }, timeout);
                 } else
                     cb("injectJs() failed.");
             });
@@ -222,10 +222,10 @@ var helium = {
             results.forEach(function(stylesheets) {
                 stylesheets.forEach(function(s) {
                     if (!localss.hasOwnProperty(s.stylesheet)) {
-                        var d = localss[s.stylesheet] = {
-                            stylesheet: s.stylesheet,
-                            selectors: {}
-                        };
+                            var d = localss[s.stylesheet] = {
+                                stylesheet: s.stylesheet,
+                                selectors: {}
+                            };
 
                         if (s.err) d.err = s.err;
 
@@ -259,15 +259,15 @@ var helium = {
                         selectors: []
                     }, lss = localss[s].selectors;
 
-                    if (localss[s].err)
-                        stylesheet.err = localss[s].err;
+                        if (localss[s].err)
+                            stylesheet.err = localss[s].err;
 
                     for (var selector in lss) {
                         stylesheet.selectors.push(lss[selector]);
                     }
                     rs.push(stylesheet);
                 }
-            }
+                }
 
             callback(err, rs);
         });
@@ -291,25 +291,25 @@ var helium = {
 
 function waitFor(testFx, onReady, timeOutMillis) {
     var maxtimeOutMillis = timeOutMillis ? timeOutMillis : 3000, //< Default Max Timout is 3s
-        start = new Date().getTime(),
-        condition = false,
-        interval = setInterval(function() {
-            if ((new Date().getTime() - start < maxtimeOutMillis) && !condition) {
-                // If not time-out yet and condition not yet fulfilled
-                condition = (typeof(testFx) === "string" ? eval(testFx) : testFx()); //< defensive code
+    start = new Date().getTime(),
+    condition = false,
+    interval = setInterval(function() {
+        if ((new Date().getTime() - start < maxtimeOutMillis) && !condition) {
+            // If not time-out yet and condition not yet fulfilled
+            condition = (typeof(testFx) === "string" ? eval(testFx) : testFx()); //< defensive code
+        } else {
+            if (!condition) {
+                // If condition still not fulfilled (timeout but condition is 'false')
+                system.stderr.writeLine("'waitFor()' timeout");
+                phantom.exit(1);
             } else {
-                if (!condition) {
-                    // If condition still not fulfilled (timeout but condition is 'false')
-                    system.stderr.writeLine("'waitFor()' timeout");
-                    phantom.exit(1);
-                } else {
-                    // Condition fulfilled (timeout and/or condition is 'true')
-                    // console.info("'waitFor()' finished in " + (new Date().getTime() - start) + "ms.");
-                    typeof(onReady) === "string" ? eval(onReady) : onReady(); //< Do what it's supposed to do once the condition is fulfilled
-                    clearInterval(interval); //< Stop this interval
-                }
+                // Condition fulfilled (timeout and/or condition is 'true')
+                // console.info("'waitFor()' finished in " + (new Date().getTime() - start) + "ms.");
+                typeof(onReady) === "string" ? eval(onReady) : onReady(); //< Do what it's supposed to do once the condition is fulfilled
+                clearInterval(interval); //< Stop this interval
             }
-        }, 250); // repeat check every 250ms
+        }
+    }, 250); // repeat check every 250ms
 }
 
 
@@ -354,9 +354,9 @@ helium.start(pageList, function(err, rs) {
 
 
         var total = 0,
-            unused = 0;
+        unused = 0;
         ss.selectors.forEach(function(selector) {
-            total++;
+                total++;
             if (selector.visible === false) {
                 unused++;
                 data.unused.push(selector.selector);

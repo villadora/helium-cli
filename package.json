@@ -1,13 +1,13 @@
 {
     "name": "helium-cli",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "description": "A tool to detect unused CSS across multiple web pages",
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "bin": {
-        "helium-cli": "index.js"
+        "helium-cli": "bin.js"
     },
     "repository": {
         "type": "git",

@@ -11,6 +11,7 @@ If you want a standalone cli tool, just run(highly suggest):
 If you already has phantomjs installed and also curl in your machine, and you really don't want to download phantomjs again due to some reason.
 Then you can clone this repository and remove the "phantomjs" "request" dependencies in the [package.json](./package.json).
 
+
 ## Usage
 
 While you install via npm, then you can run:
@@ -44,10 +45,33 @@ The output will be a json like following
 ]
 ```
 
+
+### Use in node
+
+Now you can use `helium-cli` pragmatically in node: 
+
+```javascript
+   var helium = require('helium-cli');
+   
+   helium('www.example.com', function(err, results) {
+        // analyse results
+   });
+   
+   helium(['www.example.com', 'www.example1.com'], function(err, results) {
+        // analyse results
+        ...
+   });
+   
+```
+
+
+
 ## TODO
 
 1. Error handling for webpage loading/parsing errors.
 2. Detect css selectors used in javascript.
+3. ~~Psuedo class detect.~~
+
 
 ## License
 
