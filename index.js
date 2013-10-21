@@ -18,6 +18,7 @@ module.exports = function(urls, callback, debug) {
     if (debug) console.log(binPath, '\n', childArgs);
 
     var ph = childProcess.spawn(binPath, childArgs);
+    
     ph.stdout.setEncoding('utf8');
     ph.stderr.setEncoding('utf8');
     

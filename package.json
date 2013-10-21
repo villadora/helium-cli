@@ -7,7 +7,7 @@
         "test": "echo \"Error: no test specified\" && exit 1"
     },
     "bin": {
-        "helium-cli": "bin.js"
+        "helium-cli": "./bin/index.js"
     },
     "repository": {
         "type": "git",
@@ -22,7 +22,7 @@
         "phantomjs": "~1.9.0",
         "async": "~0.2.9",
         "request": "~2.27.0",
-        "css-parse": "~1.5.2"
+        "css-parse": "~1.6.0"
     },
     "devDependencies": {
         "jshint": "~2.1.9"

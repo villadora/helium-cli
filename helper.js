@@ -1,55 +1,60 @@
 var helium = {
     timeout: 3000,
     findstylesheets: function() {
-        var stylesheets = [],
-            //find link elements on the page
-            links = document.getElementsByTagName("link"),
-            directory;
+        try {
 
-        for (var i = 0; i < links.length; i++) {
-            var refAttr = links[i].getAttribute('rel');
-            if (refAttr != "stylesheet") continue;
-            //get href
-            var tmplink = links[i].getAttribute('href');
+            var stylesheets = [],
+                //find link elements on the page
+                links = document.getElementsByTagName("link"),
+                directory;
 
-            //append full URI if absent
-            if (tmplink.indexOf('http') !== 0 && tmplink.substr(0, 2) !== '//') {
-                // make sure that relative URLs work too
-                if (tmplink.indexOf('/') !== 0) {
-                    var lastDir = window.location.pathname.lastIndexOf('/');
-                    if (lastDir > 0) {
-                        directory = window.location.pathname.substring(0, lastDir + 1);
-                    } else {
-                        directory = '/';
+            for (var i = 0; i < links.length; i++) {
+                var refAttr = links[i].getAttribute('rel');
+                if (refAttr != "stylesheet") continue;
+                //get href
+                var tmplink = links[i].getAttribute('href');
+
+                //append full URI if absent
+                if (tmplink.indexOf('http') !== 0 && tmplink.substr(0, 2) !== '//') {
+                    // make sure that relative URLs work too
+                    if (tmplink.indexOf('/') !== 0) {
+                        var lastDir = window.location.pathname.lastIndexOf('/');
+                        if (lastDir > 0) {
+                            directory = window.location.pathname.substring(0, lastDir + 1);
+                        } else {
+                            directory = '/';
+                        }
+                        tmplink = directory + tmplink;
                     }
-                    tmplink = directory + tmplink;
+                    tmplink = window.location.protocol + '//' + window.location.hostname + ":" + window.location.port + tmplink;
                 }
-                tmplink = window.location.protocol + '//' + window.location.hostname + ":" + window.location.port + tmplink;
+
+                //filter out urls not on this domain
+                stylesheets.push(tmplink);
             }
 
-            //filter out urls not on this domain
-            stylesheets.push(tmplink);
-        }
 
+            //remove duplicates from stylesheets list
+            stylesheets.sort();
 
-        //remove duplicates from stylesheets list
-        stylesheets.sort();
-
-        for (var i = 0; i < stylesheets.length - 1; i++) {
-            if (stylesheets[i] === stylesheets[i + 1]) {
-                stylesheets.splice(i--, 1);
+            for (var i = 0; i < stylesheets.length - 1; i++) {
+                if (stylesheets[i] === stylesheets[i + 1]) {
+                    stylesheets.splice(i--, 1);
+                }
             }
-        }
 
-        var styles = document.getElementsByTagName('style');
-        for (var i = 0; i < styles.length; ++i) {
-            stylesheets.push({
-                stylesheet: '<style> ' + i,
-                body: styles[i].innerText
-            });
-        }
+            var styles = document.getElementsByTagName('style');
+            for (var i = 0; i < styles.length; ++i) {
+                stylesheets.push({
+                    stylesheet: '<anonymouse inner-style:' + i + '>',
+                    body: styles[i].innerText
+                });
+            }
 
-        return stylesheets;
+            return stylesheets;
+        } catch (e) {
+            return e;
+        }
     },
 
     //check if selectors found on pages
@@ -91,9 +96,9 @@ var helium = {
         //detect if the selector includes a pseudo-class, i.e. :active, :focus
         var parse = selector.match(/\:+[\w-]+/gi);
         if (parse !== null && parse.hasOwnProperty('length') && parse.length > 0) {
-            var trueSelector = selector.replace(/\:[\w-]+/gi,'');
+            var trueSelector = selector.replace(/\:[\w-]+/gi, '');
             var reccheck = helium.check(trueSelector);
-            if(reccheck === false) return false;
+            if (reccheck === false) return false;
             return 'pseudo_class';
         } else {
             return false;
