@@ -7,6 +7,7 @@ var childProcess = require('child_process'),
     debug = false,
     silence = false,
     helium = require('../lib/driver'),
+    colors = require('colors'),
     args = Array.prototype.concat.call(process.argv);
 
 
@@ -28,27 +29,32 @@ if (args.length < 3) {
 }
 
 
-helium.on('info', function(data) {
-    if (!silence) console.error(data);
-});
-
-helium.on('error', function(err) {
-    console.error(err);
-    process.exit(1);
-});
-
-helium.once('end', function() {
-    // TODO:
-});
-
-
 helium(args.slice(2), function(err, output) {
     if (err) {
         console.error(JSON.stringify(err, null, 4) + "\n" + output.substring(0, 100) + output.length > 100 ? '...' : '');
         process.exit(err.code || 1);
     } else {
-        // output normally
-        console.log(JSON.stringify(output, null, 4));
+        // TODO: output info
+        var pages = output.pages,
+            csses = output.csses;
+
+        for (var url in pages) {
+            var page = pages[url];
+            if (page.err) {
+                console.log(("PAGE (" + url + ") ERROR").red);
+                console.log(("\tERROR MSG:" + page.msg).red);
+            }
+        }
+
+        csses.forEach(function(css) {
+            if (css.err) {
+                console.log(("CSS (" + css.url + ") ERROR").red);
+                console.log(("\tERROR MSG:" + css.msg).red);
+            } else {
+                console.log(("CSS (" + css.url + ") RESULT").green);
+                console.log((css.unused.length + '(' + css.unused_perc + "%) of CSS not used.").green);
+            }
+        });
     }
 });
 

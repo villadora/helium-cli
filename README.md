@@ -14,6 +14,8 @@ Then you can clone this repository and remove the "phantomjs" "request" dependen
 
 ## Usage
 
+### Use in command-line
+
 While you install via npm, then you can run:
 
     helium-cli www.example.com/1 www.example.com/2  
