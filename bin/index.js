@@ -1,15 +1,14 @@
 #!/usr/bin/env node
 
 var childProcess = require('child_process'),
-    phantomjs = require('phantomjs'),
-    path = require('path'),
-    binPath = phantomjs.path,
-    debug = false,
-    silence = false,
-    helium = require('../lib/driver'),
-    colors = require('colors'),
-    args = Array.prototype.concat.call(process.argv);
-
+phantomjs = require('phantomjs'),
+path = require('path'),
+colors = require('colors'),
+binPath = phantomjs.path,
+debug = false,
+silence = false,
+helium = require('../lib/driver'),
+args = Array.prototype.concat.call(process.argv);
 
 for (var i = 0; i < args.length; ++i) {
     if (args[i] === "-h" || args[i] === "--help") {
@@ -19,6 +18,10 @@ for (var i = 0; i < args.length; ++i) {
         process.exit(0);
     } else if (args[i] === "-s" || args[i] == "--silence") {
         silence = true;
+        args.splice(i, 1);
+    } else if (args[i] === '--debug') {
+        helium.debug = true;
+        args.splice(i, 1);
     }
 }
 
@@ -29,14 +32,14 @@ if (args.length < 3) {
 }
 
 
-helium(args.slice(2), function(err, output) {
+helium(args.slice(2), function(err, data) {
     if (err) {
-        console.error(JSON.stringify(err, null, 4) + "\n" + output.substring(0, 100) + output.length > 100 ? '...' : '');
+        console.error(JSON.stringify(err, null, 4) + "\n" + data.substring(0, 100) + data.length > 100 ? '...' : '');
         process.exit(err.code || 1);
     } else {
-        // TODO: output info
-        var pages = output.pages,
-            csses = output.csses;
+        // TODO: data info
+        var pages = data.pages,
+        csses = data.csses;
 
         for (var url in pages) {
             var page = pages[url];
@@ -52,7 +55,7 @@ helium(args.slice(2), function(err, output) {
                 console.log(("\tERROR MSG:" + css.msg).red);
             } else {
                 console.log(("CSS (" + css.url + ") RESULT").green);
-                console.log((css.unused.length + '(' + css.unused_perc + "%) of CSS not used.").green);
+                console.log(("\t" + css.unused.length + ' rules (' + css.unused_perc + "%) of CSS not used.").green);
             }
         });
     }
