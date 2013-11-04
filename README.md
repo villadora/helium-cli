@@ -14,6 +14,8 @@ Then you can clone this repository and remove the "phantomjs" "request" dependen
 
 ## Usage
 
+### Use in command-line
+
 While you install via npm, then you can run:
 
     helium-cli www.example.com/1 www.example.com/2  
@@ -23,26 +25,8 @@ You can just run:
 
     phantomjs helium-script.js www.example.com/1 www.example.com/2
 
-
-The output will be a json like following
-
 ```javascript
-[
-   {
-      name: 'stylesheet name',
-      unused: [
-         'selectors that no used',
-         '...'
-      ],
-      invalid_selector: [
-         'selectors that are invalid'
-      ],
-      pseudo_class: [
-         'pseudo classes'
-      ],
-      unused_perc: 54.3 // percentage of unused selectors
-   }
-]
+
 ```
 
 
@@ -53,11 +37,52 @@ Now you can use `helium-cli` pragmatically in node:
 ```javascript
    var helium = require('helium-cli');
    
-   helium('www.example.com', function(err, results) {
+   helium('www.example.com', function(err, data) {
         // analyse results
+        // data is looks like following : 
+        {
+          pages: {
+            "www.example.com" : {
+              err: true, 
+              error: new Error('...'),
+              msg: 'xxx...'
+            }, 
+            "www.example1.com": {
+              "csses": [{
+                "url":"http://www.example1.com/one.css",
+                "name": "one.css"
+              },
+              {
+                "url": "http://www.example1.com/ <anonymouse inner-style:0>",
+                "name": "<anonymouse inner-style>",
+                "body": "...."
+              }]
+            }
+          },
+          csses: [{
+            "name": "xxx",
+            "url": "xxx..",
+            "unused": [
+                'unused selectors'...
+            ],
+            "pseudo_class": [
+                'pseudo classes'...
+            ],
+            "invalid_selector": [
+                'invalid selectors'...
+            ],
+            "unused_perc": "54.3" // percentage of unused selectors
+            }, {
+              "name": "xxx2",
+              "url": "xxxx...",
+              "err": true,
+              "error": new Error('...'),
+              "msg": "xxxx..."
+          }]
+       }
    });
    
-   helium(['www.example.com', 'www.example1.com'], function(err, results) {
+   helium(['www.example.com', 'www.example1.com'], function(err, data) {
         // analyse results
         ...
    });
@@ -68,7 +93,7 @@ Now you can use `helium-cli` pragmatically in node:
 
 ## TODO
 
-1. Error handling for webpage loading/parsing errors.
+1. ~~Error handling for webpage loading/parsing errors.~~
 2. Detect css selectors used in javascript.
 3. ~~Psuedo class detect.~~
 

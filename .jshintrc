@@ -1,8 +1,8 @@
 {
     "passfail"      : false, 
     "maxerr"        : 20,    
-    "browser"       : true,   
-    "node"          : false,
+    "node"          : true,
+    "browser"       : false,   
     "debug"         : false,  
     "devel"         : true,   
     "es5"           : false,   
