@@ -1,14 +1,12 @@
 #!/usr/bin/env node
 
 var childProcess = require('child_process'),
-phantomjs = require('phantomjs'),
-path = require('path'),
-colors = require('colors'),
-binPath = phantomjs.path,
-debug = false,
-silence = false,
-helium = require('../lib/driver'),
-args = Array.prototype.concat.call(process.argv);
+    phantomjs = require('phantomjs'),
+    path = require('path'),
+    colors = require('colors'),
+    binPath = phantomjs.path,
+    helium = require('../lib/driver'),
+    args = Array.prototype.concat.call(process.argv);
 
 for (var i = 0; i < args.length; ++i) {
     if (args[i] === "-h" || args[i] === "--help") {
@@ -16,9 +14,6 @@ for (var i = 0; i < args.length; ++i) {
     } else if (args[i] === "-v" || args[i] === "--version") {
         console.log(require('../package.json').version);
         process.exit(0);
-    } else if (args[i] === "-s" || args[i] == "--silence") {
-        silence = true;
-        args.splice(i, 1);
     } else if (args[i] === '--debug') {
         helium.debug = true;
         args.splice(i, 1);
@@ -39,7 +34,7 @@ helium(args.slice(2), function(err, data) {
     } else {
         // TODO: data info
         var pages = data.pages,
-        csses = data.csses;
+            csses = data.csses;
 
         for (var url in pages) {
             var page = pages[url];
@@ -65,7 +60,6 @@ helium(args.slice(2), function(err, data) {
 
 function usage() {
     console.error('Usage: helium-cli [URLs]');
-    console.error('\t-s, --silence silence mode');
     console.error('\t-h, --help show help');
     console.error('\t-v, --version show version');
     process.exit(1);
