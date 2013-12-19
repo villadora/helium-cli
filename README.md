@@ -100,7 +100,7 @@ Now you can use `helium-cli` pragmatically in node:
 
 ## License
 
-(The BSD License)
+(The MIT License)
 
 Copyright (c) 2013, Villa.Gao <jky239@gmail.com>;
 All rights reserved.
