@@ -1,33 +1,45 @@
 #!/usr/bin/env node
 
-var childProcess = require('child_process'),
-    phantomjs = require('phantomjs'),
-    path = require('path'),
-    colors = require('colors'),
-    binPath = phantomjs.path,
-    helium = require('../lib/driver'),
-    args = Array.prototype.concat.call(process.argv);
+var childProcess = require('child_process');
+var phantomjs = require('phantomjs');
+var path = require('path');
+var colors = require('colors');
+var binPath = phantomjs.path;
+var helium = require('../lib/driver');
 
-for (var i = 0; i < args.length; ++i) {
-    if (args[i] === "-h" || args[i] === "--help") {
-        usage();
-    } else if (args[i] === "-v" || args[i] === "--version") {
-        console.log(require('../package.json').version);
-        process.exit(0);
-    } else if (args[i] === '--debug') {
-        helium.debug = true;
-        args.splice(i, 1);
-    }
+var argv = require('minimist')(process.argv.slice(2), {
+    '--': true
+});
+
+var args = argv._;
+var __ = argv['--'];
+
+if (argv.h || argv.help) {
+    usage();
 }
 
+var userAgent = argv.A || argv['user-agent'];
+var referer = argv.e || argv.referer;
 
-if (args.length < 3) {
+if (argv.v || argv.version) {
+    console.log(require('../package.json').version);
+    process.exit(0);
+}
+
+if (argv.debug) {
+    helium.debug = true;
+}
+
+if (!args.length) {
     console.error('Please provide URLs!');
     usage();
 }
 
-
-helium(args.slice(2), function(err, data) {
+helium(args, {
+    userAgent: userAgent,
+    referer: referer,
+    __: __
+}, function(err, data) {
     if (err) {
         console.error(JSON.stringify(err, null, 4) + "\n" + data.substring(0, 100) + data.length > 100 ? '...' : '');
         process.exit(err.code || 1);
@@ -56,11 +68,11 @@ helium(args.slice(2), function(err, data) {
     }
 });
 
-
-
 function usage() {
-    console.error('Usage: helium-cli [URLs]');
+    console.error('Usage: helium-cli [options] [URLs] -- [phantomjs options]');
+    console.error('\t-A, --user-agent userAgent will be used when visit URLs');
+    console.error('\t-e, --referer Referer will be used when visit URLs');
     console.error('\t-h, --help show help');
     console.error('\t-v, --version show version');
-    process.exit(1);
+    process.exit(0);
 }

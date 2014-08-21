@@ -29,6 +29,17 @@ You can just run:
 
 ```
 
+### Command Line Interface
+
+
+```
+Usage: helium-cli [options] [URLs] -- [phantomjs options]
+        -A, --user-agent userAgent will be used when visit URLs
+        -e, --referer Referer will be used when visit URLs
+        -h, --help show help
+        -v, --version show version
+```
+
 
 ### Use in node
 
@@ -37,7 +48,10 @@ Now you can use `helium-cli` pragmatically in node:
 ```javascript
    var helium = require('helium-cli');
    
-   helium('www.example.com', function(err, data) {
+   helium('www.example.com', {
+        useAgent: userAgent,
+        __: ['arguments pass to phantomjs']
+   }, function(err, data) {
         // analyse results
         // data is looks like following : 
         {
