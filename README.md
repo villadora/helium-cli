@@ -104,6 +104,11 @@ Now you can use `helium-cli` pragmatically in node:
 ```
 
 
+### Options
+
+* userAgent `string`: specified userAgent used in phantomjs
+* referer `string`: specified referer used in phantomjs
+* __ `Array.<string>`: arguments will be passed to phantomjs process
 
 ## TODO
 
